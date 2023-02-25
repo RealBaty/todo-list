@@ -1,5 +1,6 @@
 package ru.hh.school.todolistserver.config;
 
+import org.glassfish.jersey.server.ResourceConfig;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.PostgreSQL10Dialect;
@@ -9,6 +10,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import ru.hh.school.todolistserver.entity.TaskEntity;
+import ru.hh.school.todolistserver.resource.TaskResource;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -43,5 +45,12 @@ public class ApplicationConfig {
     @Bean
     public HibernateTransactionManager platformTransactionManager(SessionFactory sessionFactory) {
         return new HibernateTransactionManager(sessionFactory);
+    }
+
+    @Bean
+    public ResourceConfig jerseyConfig() {
+        ResourceConfig config = new ResourceConfig();
+        config.register(TaskResource.class);
+        return config;
     }
 }

@@ -42,16 +42,36 @@
 			return;
 		}
 
-		var todos = JSON.parse(localStorage.getItem(this._dbName));
-
-		callback.call(this, todos.filter(function (todo) {
-			for (var q in query) {
-				if (query[q] !== todo[q]) {
-					return false;
-				}
+		const xhr = new XMLHttpRequest();
+		var s = '';
+		for (var q in query){
+			if (s === ''){
+				s = '?' + q + '=' + query[q]
+			} else {
+				s = s + '&' + q + '=' + query[q]
 			}
-			return true;
-		}));
+		}
+		xhr.open('GET', 'http://localhost:8080/task' + s);
+		xhr.responseType = "json";
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState !== 4 || xhr.status !== 200) {
+				return;
+			}
+			const response = xhr.response;
+			callback.call(this, response);
+		}
+		xhr.send();
+
+		// var todos = JSON.parse(localStorage.getItem(this._dbName));
+		//
+		// callback.call(this, todos.filter(function (todo) {
+		// 	for (var q in query) {
+		// 		if (query[q] !== todo[q]) {
+		// 			return false;
+		// 		}
+		// 	}
+		// 	return true;
+		// }));
 	};
 
 	/**
@@ -61,7 +81,18 @@
 	 */
 	Store.prototype.findAll = function (callback) {
 		callback = callback || function () {};
-		callback.call(this, JSON.parse(localStorage.getItem(this._dbName)));
+		const xhr = new XMLHttpRequest();
+		xhr.open('GET', 'http://localhost:8080/task');
+		xhr.responseType = "json";
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState !== 4 || xhr.status !== 200) {
+				return;
+			}
+			const response = xhr.response;
+			callback.call(this, response);
+		}
+		xhr.send();
+		// callback.call(this, JSON.parse(localStorage.getItem(this._dbName)));
 	};
 
 	/**
@@ -80,24 +111,44 @@
 		// If an ID was actually given, find the item and update each property
 		if (id) {
 			updateData.id = id;
-			for (var i = 0; i < todos.length; i++) {
-				if (todos[i].id === id) {
-					for (var key in updateData) {
-						todos[i][key] = updateData[key];
-					}
-					break;
+			const xhr = new XMLHttpRequest();
+			xhr.open('PUT', 'http://localhost:8080/task');
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState !== 4 || xhr.status !== 200) {
+					return;
 				}
+				callback.call(this, [updateData]);
 			}
-
-			localStorage.setItem(this._dbName, JSON.stringify(todos));
-			callback.call(this, updateData);
+			xhr.send(JSON.stringify(updateData));
+			// for (var i = 0; i < todos.length; i++) {
+			// 	if (todos[i].id === id) {
+			// 		for (var key in updateData) {
+			// 			todos[i][key] = updateData[key];
+			// 		}
+			// 		break;
+			// 	}
+			// }
+			//
+			// localStorage.setItem(this._dbName, JSON.stringify(todos));
+			// callback.call(this, updateData);
 		} else {
 			// Generate an ID
-			updateData.id = new Date().getTime();
-
-			todos.push(updateData);
-			localStorage.setItem(this._dbName, JSON.stringify(todos));
-			callback.call(this, [updateData]);
+			const xhr = new XMLHttpRequest();
+			xhr.open('POST', 'http://localhost:8080/task');
+			xhr.responseType = "json"
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState !== 4 || xhr.status !== 200) {
+					return;
+				}
+				const response = xhr.response;
+				callback.call(this, [response]);
+			}
+			xhr.send(JSON.stringify(updateData));
+			// updateData.id = new Date().getTime();
+			//
+			// todos.push(updateData);
+			// localStorage.setItem(this._dbName, JSON.stringify(todos));
+			// callback.call(this, [updateData]);
 		}
 	};
 
@@ -108,17 +159,26 @@
 	 * @param {function} callback The callback to fire after saving
 	 */
 	Store.prototype.remove = function (id, callback) {
-		var todos = JSON.parse(localStorage.getItem(this._dbName));
-
-		for (var i = 0; i < todos.length; i++) {
-			if (todos[i].id == id) {
-				todos.splice(i, 1);
-				break;
+		const xhr = new XMLHttpRequest();
+		xhr.open('DELETE', 'http://localhost:8080/task?id=' + id);
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState !== 4 || xhr.status !== 200) {
+				return;
 			}
+			Store.prototype.findAll(callback);
 		}
-
-		localStorage.setItem(this._dbName, JSON.stringify(todos));
-		callback.call(this, todos);
+		xhr.send();
+		// var todos = JSON.parse(localStorage.getItem(this._dbName));
+		//
+		// for (var i = 0; i < todos.length; i++) {
+		// 	if (todos[i].id == id) {
+		// 		todos.splice(i, 1);
+		// 		break;
+		// 	}
+		// }
+		//
+		// localStorage.setItem(this._dbName, JSON.stringify(todos));
+		// callback.call(this, todos);
 	};
 
 	/**
@@ -127,9 +187,18 @@
 	 * @param {function} callback The callback to fire after dropping the data
 	 */
 	Store.prototype.drop = function (callback) {
-		var todos = [];
-		localStorage.setItem(this._dbName, JSON.stringify(todos));
-		callback.call(this, todos);
+		const xhr = new XMLHttpRequest();
+		xhr.open('DELETE', 'http://localhost:8080/task');
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState !== 4 || xhr.status !== 200) {
+				return;
+			}
+			callback.call(this, []);
+		}
+		xhr.send();
+		// var todos = [];
+		// localStorage.setItem(this._dbName, JSON.stringify(todos));
+		// callback.call(this, todos);
 	};
 
 	// Export to window

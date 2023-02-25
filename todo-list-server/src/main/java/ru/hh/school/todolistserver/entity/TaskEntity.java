@@ -23,6 +23,15 @@ public class TaskEntity {
             nullable = false)
     private Boolean completionStatus;
 
+    public TaskEntity() {
+    }
+
+    public TaskEntity(Long id, String title, Boolean completionStatus) {
+        this.id = id;
+        this.title = title;
+        this.completionStatus = completionStatus;
+    }
+
     public Long getId() {
         return id;
     }
