@@ -20,7 +20,7 @@ public class ApplicationConfig {
 
     @Bean
     public DataSource dataSource() {
-        return new DriverManagerDataSource("jdbc:postgresql://localhost:5432/hh", "hh", "hh");
+        return new DriverManagerDataSource("jdbc:postgresql://localhost:32768/todo-list", "user", "1234");
     }
 
     @Bean

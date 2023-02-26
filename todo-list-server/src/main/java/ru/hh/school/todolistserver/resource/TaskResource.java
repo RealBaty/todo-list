@@ -5,16 +5,20 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RestController;
 import ru.hh.school.todolistserver.dto.TaskDto;
-import ru.hh.school.todolistserver.entity.TaskEntity;
 import ru.hh.school.todolistserver.service.TaskMapper;
 import ru.hh.school.todolistserver.service.TaskService;
 import ru.hh.school.todolistserver.service.TaskValidator;
 
 import java.util.Optional;
 
-@Resource
 @Path(value = "/task")
+@Controller
+@Resource
 public class TaskResource {
 
     private final TaskService taskService;
@@ -23,7 +27,7 @@ public class TaskResource {
 
     private final TaskValidator taskValidator;
 
-    @Inject
+    @Autowired
     public TaskResource(TaskService taskService, TaskMapper taskMapper, TaskValidator taskValidator){
         this.taskService = taskService;
         this.taskMapper = taskMapper;
