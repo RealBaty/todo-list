@@ -6,6 +6,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +18,7 @@ import ru.hh.school.todolistserver.service.TaskValidator;
 import java.util.Optional;
 
 @Path(value = "/task")
-@Controller
-@Resource
+@Component
 public class TaskResource {
 
     private final TaskService taskService;
@@ -38,9 +38,13 @@ public class TaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response find(@QueryParam(value = "id") Long id,
                          @QueryParam(value = "title") String title,
-                         @QueryParam(value = "completionStatus") Boolean completionStatus){
+                         @QueryParam(value = "completed") Boolean completed){
         return Response
-                .ok(taskService.find(Optional.ofNullable(id), Optional.ofNullable(title), Optional.ofNullable(completionStatus)))
+                .ok(taskService
+                        .find(Optional.ofNullable(id), Optional.ofNullable(title), Optional.ofNullable(completed))
+                        .stream()
+                        .map(taskMapper::map)
+                        .toList())
                 .build();
     }
 

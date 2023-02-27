@@ -36,8 +36,8 @@
 	};
 
 	View.prototype._clearCompletedButton = function (completedCount, visible) {
-		this.$clearCompleted.innerHTML = this.template.clearCompletedButton(completedCount);
-		this.$clearCompleted.style.display = visible ? 'block' : 'none';
+		this.$clearCompleted.innerHTML = this.template.clearCompletedButton(1);
+		this.$clearCompleted.style.display = 'block';
 	};
 
 	View.prototype._setFilter = function (currentPage) {

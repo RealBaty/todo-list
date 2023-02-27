@@ -1,6 +1,7 @@
 package ru.hh.school.todolistserver.config;
 
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletProperties;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.PostgreSQL10Dialect;
@@ -51,6 +52,7 @@ public class ApplicationConfig {
     public ResourceConfig jerseyConfig() {
         ResourceConfig config = new ResourceConfig();
         config.register(TaskResource.class);
+        config.property(ServletProperties.FILTER_FORWARD_ON_404, true);
         return config;
     }
 }

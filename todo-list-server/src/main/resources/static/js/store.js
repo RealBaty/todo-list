@@ -113,10 +113,12 @@
 			updateData.id = id;
 			const xhr = new XMLHttpRequest();
 			xhr.open('PUT', 'http://localhost:8080/task');
+			xhr.setRequestHeader("Content-Type", "application/json");
 			xhr.onreadystatechange = function() {
 				if (xhr.readyState !== 4 || xhr.status !== 200) {
 					return;
 				}
+				// Store.prototype.findAll(callback);
 				callback.call(this, [updateData]);
 			}
 			xhr.send(JSON.stringify(updateData));
@@ -136,11 +138,13 @@
 			const xhr = new XMLHttpRequest();
 			xhr.open('POST', 'http://localhost:8080/task');
 			xhr.responseType = "json"
+			xhr.setRequestHeader("Content-Type", "application/json");
 			xhr.onreadystatechange = function() {
 				if (xhr.readyState !== 4 || xhr.status !== 200) {
 					return;
 				}
 				const response = xhr.response;
+				// Store.prototype.findAll(callback);
 				callback.call(this, [response]);
 			}
 			xhr.send(JSON.stringify(updateData));
