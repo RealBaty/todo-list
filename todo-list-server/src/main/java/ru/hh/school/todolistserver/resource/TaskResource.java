@@ -1,6 +1,13 @@
 package ru.hh.school.todolistserver.resource;
 
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +56,7 @@ public class TaskResource {
     public Response update(TaskDto taskDto){
         try {
             TaskValidator.validateUpdateTask(taskDto);
-            taskService.update(
-                    taskDto.getId(),
-                    taskDto.getTitle(),
-                    taskDto.getCompleted());
+            taskService.update(taskDto.getId(), taskDto.getTitle(), taskDto.getCompleted());
             return Response.ok().build();
         } catch (IllegalTaskException e){
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
