@@ -24,19 +24,22 @@ public class TaskDao {
         this.sessionFactory = sessionFactory;
     }
 
-    public List<TaskEntity> find(Optional<Long> id, Optional<String> title, Optional<Boolean> completionStatus){
+    public List<TaskEntity> find(Long id, String title, Boolean completionStatus){
         Session session = getSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<TaskEntity> criteriaQuery = builder.createQuery(TaskEntity.class);
         Root<TaskEntity> root = criteriaQuery.from(TaskEntity.class);
 
         List<Predicate> predicates = new ArrayList<>();
-        id.ifPresent(field ->
-                predicates.add(builder.equal(root.get("id"), field)));
-        title.ifPresent(field ->
-                predicates.add(builder.equal(root.get("title"), field)));
-        completionStatus.ifPresent(field ->
-                predicates.add(builder.equal(root.get("completionStatus"), field)));
+        if(id != null) {
+            predicates.add(builder.equal(root.get("id"), id));
+        }
+        if(title != null) {
+            predicates.add(builder.equal(root.get("title"), title));
+        }
+        if(completionStatus != null){
+            predicates.add(builder.equal(root.get("completionStatus"), completionStatus));
+        }
         criteriaQuery.select(root).where(predicates.toArray(new Predicate[]{}));
         return session.createQuery(criteriaQuery).getResultList();
     }

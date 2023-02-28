@@ -22,7 +22,7 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskEntity> find(Optional<Long> id, Optional<String> title, Optional<Boolean> completionStatus){
+    public List<TaskEntity> find(Long id, String title, Boolean completionStatus){
         return taskDao.find(id, title, completionStatus);
     }
 
@@ -32,14 +32,14 @@ public class TaskService {
     }
 
     @Transactional
-    public Boolean update(Long id, Optional<String> title, Optional<Boolean> completionStatus){
+    public void update(Long id, String title, Boolean completionStatus){
         Optional<TaskEntity> task = taskDao.getTask(id);
         if(task.isPresent()){
-            title.ifPresent(task.get()::setTitle);
-            completionStatus.ifPresent(task.get()::setCompletionStatus);
-            return true;
+            Optional.ofNullable(title).ifPresent(task.get()::setTitle);
+            Optional.ofNullable(completionStatus).ifPresent(task.get()::setCompletionStatus);
+        } else {
+            throw new IllegalArgumentException("Task not found by id");
         }
-        return false;
     }
 
     @Transactional

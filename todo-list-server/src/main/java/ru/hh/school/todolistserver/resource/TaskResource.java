@@ -41,7 +41,7 @@ public class TaskResource {
                          @QueryParam(value = "completed") Boolean completed){
         return Response
                 .ok(taskService
-                        .find(Optional.ofNullable(id), Optional.ofNullable(title), Optional.ofNullable(completed))
+                        .find(id, title, completed)
                         .stream()
                         .map(taskMapper::map)
                         .toList())
@@ -52,22 +52,30 @@ public class TaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response save(TaskDto taskDto){
-        taskValidator.validateNewTask(taskDto);
-        return Response
-                .ok(taskMapper.map(
-                        taskService.save(taskDto.getTitle(), taskDto.getCompleted())))
-                .build();
+        try {
+            taskValidator.validateNewTask(taskDto);
+            return Response
+                    .ok(taskMapper.map(
+                            taskService.save(taskDto.getTitle(), taskDto.getCompleted())))
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(404, e.getMessage()).build();
+        }
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response update(TaskDto taskDto){
-        taskValidator.validateUpdateTask(taskDto);
-        taskService.update(
-                taskDto.getId(),
-                Optional.ofNullable(taskDto.getTitle()),
-                Optional.ofNullable(taskDto.getCompleted()));
-        return Response.ok().build();
+        try {
+            taskValidator.validateUpdateTask(taskDto);
+            taskService.update(
+                    taskDto.getId(),
+                    taskDto.getTitle(),
+                    taskDto.getCompleted());
+            return Response.ok().build();
+        } catch (IllegalArgumentException e){
+            return Response.status(404, e.getMessage()).build();
+        }
     }
 
     @DELETE
