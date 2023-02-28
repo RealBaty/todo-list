@@ -1,21 +1,15 @@
 package ru.hh.school.todolistserver.resource;
 
-import jakarta.annotation.Resource;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RestController;
 import ru.hh.school.todolistserver.dto.TaskDto;
-import ru.hh.school.todolistserver.service.TaskMapper;
+import ru.hh.school.todolistserver.exception.IllegalTaskException;
 import ru.hh.school.todolistserver.service.TaskService;
-import ru.hh.school.todolistserver.service.TaskValidator;
 
-import java.util.Optional;
+import java.util.List;
 
 @Path(value = "/task")
 @Component
@@ -23,29 +17,17 @@ public class TaskResource {
 
     private final TaskService taskService;
 
-    private final TaskMapper taskMapper;
-
-    private final TaskValidator taskValidator;
-
     @Autowired
-    public TaskResource(TaskService taskService, TaskMapper taskMapper, TaskValidator taskValidator){
+    public TaskResource(TaskService taskService){
         this.taskService = taskService;
-        this.taskMapper = taskMapper;
-        this.taskValidator = taskValidator;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response find(@QueryParam(value = "id") Long id,
-                         @QueryParam(value = "title") String title,
-                         @QueryParam(value = "completed") Boolean completed){
-        return Response
-                .ok(taskService
-                        .find(id, title, completed)
-                        .stream()
-                        .map(taskMapper::map)
-                        .toList())
-                .build();
+    public List<TaskDto> find(@QueryParam(value = "id") Long id,
+                              @QueryParam(value = "title") String title,
+                              @QueryParam(value = "completed") Boolean completed){
+        return taskService.find(id, title, completed);
     }
 
     @POST
@@ -53,13 +35,12 @@ public class TaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response save(TaskDto taskDto){
         try {
-            taskValidator.validateNewTask(taskDto);
+            TaskValidator.validateNewTask(taskDto);
             return Response
-                    .ok(taskMapper.map(
-                            taskService.save(taskDto.getTitle(), taskDto.getCompleted())))
+                    .ok(taskService.save(taskDto.getTitle(), taskDto.getCompleted()))
                     .build();
-        } catch (IllegalArgumentException e) {
-            return Response.status(404, e.getMessage()).build();
+        } catch (IllegalTaskException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         }
     }
 
@@ -67,14 +48,14 @@ public class TaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response update(TaskDto taskDto){
         try {
-            taskValidator.validateUpdateTask(taskDto);
+            TaskValidator.validateUpdateTask(taskDto);
             taskService.update(
                     taskDto.getId(),
                     taskDto.getTitle(),
                     taskDto.getCompleted());
             return Response.ok().build();
-        } catch (IllegalArgumentException e){
-            return Response.status(404, e.getMessage()).build();
+        } catch (IllegalTaskException e){
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         }
     }
 

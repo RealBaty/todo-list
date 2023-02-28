@@ -1,13 +1,13 @@
 package ru.hh.school.todolistserver.service;
 
 import jakarta.inject.Inject;
-import org.apache.el.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hh.school.todolistserver.dao.TaskDao;
-import ru.hh.school.todolistserver.entity.TaskEntity;
+import ru.hh.school.todolistserver.dto.TaskDto;
+import ru.hh.school.todolistserver.entity.Task;
+import ru.hh.school.todolistserver.exception.IllegalTaskException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,24 +22,30 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskEntity> find(Long id, String title, Boolean completionStatus){
-        return taskDao.find(id, title, completionStatus);
+    public List<TaskDto> find(Long id, String title, Boolean completionStatus){
+        return taskDao.find(id, title, completionStatus)
+                .stream()
+                .map(TaskMapper::map)
+                .toList();
     }
 
     @Transactional
-    public TaskEntity save(String title, Boolean completionStatus){
-        return taskDao.save(title, completionStatus);
+    public TaskDto save(String title, Boolean completionStatus){
+        return TaskMapper.map(taskDao.save(title, completionStatus));
+    }
+
+    private Task loadTask(Long id) {
+        return taskDao.getTask(id)
+                .orElseThrow(() -> new IllegalTaskException("Task not found by id"));
     }
 
     @Transactional
     public void update(Long id, String title, Boolean completionStatus){
-        Optional<TaskEntity> task = taskDao.getTask(id);
-        if(task.isPresent()){
-            Optional.ofNullable(title).ifPresent(task.get()::setTitle);
-            Optional.ofNullable(completionStatus).ifPresent(task.get()::setCompletionStatus);
-        } else {
-            throw new IllegalArgumentException("Task not found by id");
-        }
+        Task task = loadTask(id);
+        Optional.ofNullable(title)
+                .ifPresent(task::setTitle);
+        Optional.ofNullable(completionStatus)
+                .ifPresent(task::setCompletionStatus);
     }
 
     @Transactional

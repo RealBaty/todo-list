@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "task")
-public class TaskEntity {
+public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,10 +24,15 @@ public class TaskEntity {
             nullable = false)
     private Boolean completionStatus;
 
-    public TaskEntity() {
+    public Task() {
     }
 
-    public TaskEntity(Long id, String title, Boolean completionStatus) {
+    public Task(String title, Boolean completionStatus) {
+        this.title = title;
+        this.completionStatus = completionStatus;
+    }
+
+    public Task(Long id, String title, Boolean completionStatus) {
         this.id = id;
         this.title = title;
         this.completionStatus = completionStatus;
@@ -61,7 +66,7 @@ public class TaskEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        TaskEntity that = (TaskEntity) o;
+        Task that = (Task) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 

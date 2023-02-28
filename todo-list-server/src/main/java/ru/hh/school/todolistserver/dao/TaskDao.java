@@ -4,7 +4,7 @@ import jakarta.inject.Inject;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
-import ru.hh.school.todolistserver.entity.TaskEntity;
+import ru.hh.school.todolistserver.entity.Task;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -24,11 +24,11 @@ public class TaskDao {
         this.sessionFactory = sessionFactory;
     }
 
-    public List<TaskEntity> find(Long id, String title, Boolean completionStatus){
+    public List<Task> find(Long id, String title, Boolean completionStatus){
         Session session = getSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<TaskEntity> criteriaQuery = builder.createQuery(TaskEntity.class);
-        Root<TaskEntity> root = criteriaQuery.from(TaskEntity.class);
+        CriteriaQuery<Task> criteriaQuery = builder.createQuery(Task.class);
+        Root<Task> root = criteriaQuery.from(Task.class);
 
         List<Predicate> predicates = new ArrayList<>();
         if(id != null) {
@@ -44,32 +44,30 @@ public class TaskDao {
         return session.createQuery(criteriaQuery).getResultList();
     }
 
-    public Optional<TaskEntity> getTask(Long id){
-        return Optional.ofNullable(getSession().get(TaskEntity.class, id));
+    public Optional<Task> getTask(Long id){
+        return Optional.ofNullable(getSession().get(Task.class, id));
     }
 
-    public void update(TaskEntity taskEntity){
-        getSession().update(taskEntity);
+    public void update(Task task){
+        getSession().update(task);
     }
 
-    public TaskEntity save(String title, Boolean completionStatus){
-        TaskEntity task = new TaskEntity();
-        task.setTitle(title);
-        task.setCompletionStatus(completionStatus);
+    public Task save(String title, Boolean completionStatus){
+        Task task = new Task(title, completionStatus);
         getSession().persist(task);
         return task;
     }
 
     public void remove(Long id){
         getSession()
-                .createQuery("DELETE TaskEntity t WHERE t.id = :id")
+                .createQuery("DELETE Task t WHERE t.id = :id")
                 .setParameter("id", id)
                 .executeUpdate();
     }
 
     public void removeAll(){
         getSession()
-                .createQuery("DELETE TaskEntity")
+                .createQuery("DELETE Task")
                 .executeUpdate();
     }
 
